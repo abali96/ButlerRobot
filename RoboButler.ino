@@ -1,24 +1,24 @@
 // ROBOT.INO
 // ALL METHODS AND PROGRAM CODE WRITTEN
-// BY MATTHEW SMITH UNLESS OTHERWISE INDICATED 
+// BY MATTHEW SMITH UNLESS OTHERWISE INDICATED
 #undef main
 
 /* THESE LIBRARIES ARE WRITTEN BY EXTERNAL AUTHORS
    BECAUSE OF THEIR SIZE LINKS TO THESE LIBRARIES
    ARE PROVIDED IN LIEU OF THEIR SOURCE CODE
-   
+
    THE AFMotor LIBRARY IS AUTHORED BY ADAFRUIT INDUSTRIES[4]
    THE AFMotor LIBRARY ALLOWS THE ARDUINO TO COMMUNICATE WITH
    THE ADAFRUIT MOTOR CONTROLLER
-   
+
    THE I2Cdev LIBRARY IS AUTHORED BY JEFF ROWBERG[5]
    THE I2Cdev LIBRARY SIMPLIFIES I2C COMMUNICATIONS
    THROUGH THE WIRE LIBRARY
-   
+
    THE MPU6050 LIBRARY IS AUTHORED BY JEFF ROWBERG[6]
    THE MPU6050 LIBRARY ALLOWS THE OUTPUT OF THE MPU6050
    IMU TO BE EASILLY FETCHED AND PROCESSED
-   
+
    THE Wire LIBRARY IS AUTHORED BY ARDUINO[7]
    THE Wire LIBRARY ALLOWS FOR I2C COMMUNICATIONS
    WITHOUT MANIPULATING BIT REGISTERS
@@ -84,17 +84,17 @@ double getPIDInput(uint8_t raw[]) {
   Quaternion quart;
   VectorFloat gravityVec;
   float yawPitchRoll[3];
-  
+
   mpu.dmpGetQuaternion(&quart, raw);
   mpu.dmpGetGravity(&gravityVec, &quart);
   mpu.dmpGetYawPitchRoll(yawPitchRoll, &quart, &gravityVec);
   return yawPitchRoll[1] * 180/M_PI + 180;
-  /* THIS COMMENT INDICATES THE END OF PROGRAM CODE WRITTEN BY JEFF ROWBERG */    
+  /* THIS COMMENT INDICATES THE END OF PROGRAM CODE WRITTEN BY JEFF ROWBERG */
 }
 
 void handleInterrupt() {
   mpuHasInterrupt = false;
-  
+
   if(mpu.getIntStatus() & 0x10) { // should never happen, clearing the
   				  // buffer takes long enough to crash the bot
     mpu.resetFIFO();
@@ -127,9 +127,9 @@ void calibrate(double & setpoint) { //AUTHOR: ARJUN BALI
   for (int i = 0; i < 1000; i++)
   {
     while(!mpuHasInterrupt);
-    
+
     mpuHasInterrupt = false;
-    
+
     while (mpu.getFIFOCount() < mpuPacketSize);
     mpu.getFIFOBytes(MPUinput, mpuPacketSize);
     PIDinput = getPIDInput(MPUinput);
@@ -146,7 +146,7 @@ void calibrate(double & setpoint) { //AUTHOR: ARJUN BALI
   P - proportional term
   I - integral term
   D - derivative term
-  
+
   Q - halts execution
   */
 void handleSerial(char in) {
@@ -246,12 +246,12 @@ void setup() {
         Serial.print(devStatus);
         Serial.println(F(")"));
     }
-    
+
     /* THIS COMMENT INDICATES THE END OF PROGRAM CODE WRITTEN BY JEFF ROWBERG */
-    
+
     pid.setMaxSpeed(MAX_SPEED);
     calibrate(setpoint);
-    
+
     Serial.println("setup() complete!");
 }
 
@@ -270,13 +270,13 @@ void loop() {
 int main() {
   init(); //default arduino setup method
   setup();
-  
+
   while(!haltExecution)
     loop();
   Serial.println("Main loop terminated");
   motors.set(0);
   #ifdef ADAFRUIT
     motors.cleanUp();
-  #endif  
+  #endif
   return 0;
 }
